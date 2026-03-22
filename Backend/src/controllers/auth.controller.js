@@ -30,7 +30,8 @@ const registerController = async(req,res)=>{
      })
 
      const token = jwt.sign({
-       id:user._id
+       id:user._id,
+       username:user.username
      },process.env.JWT_SECRET,{expiresIn:"7d"})
 
      res.cookie("token",token);
@@ -56,7 +57,7 @@ const loginController = async(req,res)=>{
         {username},
         {email}
     ]
-  })
+  }).select("+password")
 
   if(!user){
     return res.status(404).json({
@@ -73,7 +74,8 @@ const loginController = async(req,res)=>{
   }
 
   const token = jwt.sign({
-    id:user._id
+    id:user._id,
+    username:user.username
   },process.env.JWT_SECRET,{expiresIn:"7d"})
 
   res.cookie("token",token);
@@ -103,6 +105,8 @@ const getMeController = async(req,res)=>{
     }
    })
 }
+
+
 
 
 

@@ -3,6 +3,7 @@ const { toFile } = require("@imagekit/nodejs");
 const ImageKit = require("@imagekit/nodejs");
 const cookieParser = require("cookie-parser")
 const jwt = require("jsonwebtoken")
+const likeModel = require("../models/like.model")
 
 const client = new ImageKit({
   privateKey: process.env.IMAGEKIT_PRIVATE_KEY 
@@ -76,6 +77,48 @@ async function getPostDetails(req,res){
    })
 }
 
+async function getFeedController(req,res){
+    const posts = await Promise.all(postModel.find().populate("user").lean())    //populate lagane se jo res me keval user ki id aa rahi thi ab vaha par pura user ka data aayega
+
+    .map(async (post)=>{
+
+        const isLiked = await likeModel.findOne({
+            user:user.username,
+            post:post._id
+        })
+         post.isLiked = Boolean(isLiked);
+         return post;
+    })  
+
+    return res.status(200).json({
+        message:"posts fetched successfully",
+        posts
+    })
+}
+
+async function likePostController(req,res){
+      const username = req.user.username;
+    const  postId = req.params.postId;
+
+    const post = await postModel.findById(postId)
+
+    if(!post){
+        return res.status(404).json({
+            message:"post not found"
+        })
+    }
+
+    const like = await likeModel.create({
+        post:postId,
+        user:username
+    })
+
+    return res.status(200).json({
+        message:"post liked successfully",
+        like
+    })
+}
+
 module.exports = {
-     createPostController , getPostController , getPostDetails
+     createPostController , getPostController , getPostDetails , getFeedController, likePostController
 }

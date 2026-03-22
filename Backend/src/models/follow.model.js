@@ -1,17 +1,16 @@
 const mongoose =require("mongoose");
 
 const followSchema = new mongoose.Schema({
-    followers:[{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"users",
-            required:[true,"follower is required"]
-        } ],
-         following:[{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"users",
-            required:[true,"following is required"]
-        } ]
+    follower:{
+        type:String
+    }
+    ,
+         followee:{
+            type:String,
+        } 
 },{timestamps:true})
+
+followSchema.index({follower:1,followee:1},{unique:true})
 
 const followModel = mongoose.model("follows",followSchema)
 
